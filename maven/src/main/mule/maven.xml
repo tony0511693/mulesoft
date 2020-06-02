@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="bf462873-2e7a-4d44-9f88-4d5eb514aae8" >
+		<db:oracle-connection host="localhost" user="SYSTEM" password="Welcome123" instance="kbobbala" />
+	</db:config>
+	<flow name="mavenFlow" doc:id="519940a9-a002-44a4-9676-bbd4e9e2670c" >
+		<ee:transform doc:name="Transform Message" doc:id="2ebdb433-8fe1-4311-94b0-0bd1c41ced61" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	ORDERNUMBER:"12",
+	QUANTITY:"1",
+	TOTALAMOUNT:"55",
+	ITEMAMOUNT:"12",
+	ITEMID:"12ITEMID"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="4ab47e0e-0544-4fea-aebe-6484b877209d" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO orders (ORDERNUMBER, QUANTITY, TOTALAMOUNT, ITEMAMOUNT, ITEMID)
+VALUES (:ORDERNUMBER,:QUANTITY,:TOTALAMOUNT,:ITEMAMOUNT,:ITEMID)
+
+
+
+
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+'ORDERNUMBER':payload.ORDERNUMBER,
+'QUANTITY':payload.QUANTITY,
+'TOTALAMOUNT':payload.TOTALAMOUNT,
+'ITEMAMOUNT':payload.ITEMAMOUNT,
+'ITEMID':payload.ITEMID
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="86f5745e-2935-4b2a-98ca-54376b99fc12" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="643c71a2-183a-4f3e-8015-c5b3f4bc71f6" message="#[payload]"/>
+	</flow>
+	<flow name="mavenFlow1" doc:id="d5ea6710-6cae-4491-9c9c-bf767e76d23e" >
+		<db:listener table="ORDERS" doc:name="On Table Row" doc:id="63a8b25d-b11e-4e34-949f-0f7f338377bb" config-ref="Database_Config" watermarkColumn="ITEMID">
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</db:listener>
+		<ee:transform doc:name="Transform Message" doc:id="53a5f65b-d538-48e3-b510-01f0aedc0dd1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d4911d92-187c-49ba-9637-21018ea2ba2c" message="#[payload]"/>
+	</flow>
+</mule>
