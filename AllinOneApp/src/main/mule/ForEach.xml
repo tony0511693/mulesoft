@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="ForEachFlow" doc:id="75bb0725-51d6-45b4-a211-3929934667bc" >
+		<http:listener doc:name="Listener" doc:id="e4b7bc12-0eee-4eed-aa80-8ca8b0c14ba9" config-ref="HTTP_Listener_config" path="/foreach"/>
+		<foreach doc:name="For Each" doc:id="97ac775e-cbf4-4fe4-b2dd-4edb821e5c82" collection="#[payload]">
+			<logger level="INFO" doc:name="Logger" doc:id="77f42a60-b224-4004-b1a1-2d469cb8cc8f" message="for each message #[vars.rootMessage.payload]"/>
+			<set-variable value="#[payload]" doc:name="Set Variable" doc:id="9fb7e8cd-fa58-4015-b2fd-a0c9bed1ddcf" variableName="var"/>
+			<logger level="INFO" doc:name="Logger" doc:id="4a1386e2-2a72-4529-8570-8e95c2e0f21c" message="sample palyload #[payload]"/>
+		</foreach>
+		
+		<ee:transform doc:name="Transform Message" doc:id="f5ef37e4-a650-49d2-b0b6-6e6567fa15fb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+ [
+    {
+      "name": "Tom ",
+      "age": 56,
+      "Born At": "Syracuse, NY",
+      "Birthdate": "July 3, 1962",
+      "photo": "https://jsonformatter.org/img/tom-cruise.jpg"
+    },
+   {
+      "name": "Tom Cruise",
+      "age": 56,
+      "Born At": "Syracuse, NY",
+      "Birthdate": "July 3, 1962",
+      "photo": "https://jsonformatter.org/img/tom-cruise.jpg"
+    },
+    {
+      "name": " Cruise",
+      "age": 56,
+      "Born At": "Syracuse, NY",
+      "Birthdate": "July 3, 1962",
+      "photo": "https://jsonformatter.org/img/tom-cruise.jpg"
+    }
+    ]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="52aab1a7-0e86-47f5-956f-cafa843cad47" name="PallelForEachFlow"/>
+	</flow>
+	<flow name="PallelForEachFlow" doc:id="e5b9c1bc-fbad-47bd-a27f-a489e80cfb94" >
+		<logger level="INFO" doc:name="Logger" doc:id="8178a8aa-7f5c-478d-b18f-4c2b1da5bde8" message="flow reference"/>
+		<parallel-foreach doc:name="For Each" doc:id="5b328d12-ebe2-4ec7-8c17-6ab473bf06d1" collection="#[payload]">
+			<ee:transform doc:name="Transform Message" doc:id="8b66a5fc-98c0-4c50-a484-a35078f9a443" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.name ++ "_" ++ now()]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="d42fb522-a89f-4a55-a6c3-79ac38697163" message="parllel for each payload ++ #[payload]" />
+		</parallel-foreach>
+		<ee:transform doc:name="Transform Message" doc:id="10b9ed09-37ca-4fdd-9c2f-669ec8cdd6f3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="36117366-6ab1-4102-b444-b49469e51eda" message="#[payload]"/>
+	</flow>
+</mule>

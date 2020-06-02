@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="parllelprocessingFlow" doc:id="071768d3-1148-49a2-89cb-4a19726ed8bd" >
+		<http:listener doc:name="Listener" doc:id="1c115e51-bb86-46a0-9d35-fe2e42a60a9e" config-ref="HTTP_Listener_config" path="/Scatter"/>
+		<logger level="INFO" doc:name="Logger" doc:id="73fded53-23d1-43a9-928c-f19383810e76" message="#[payload]"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="126ed5fd-ffd3-49d9-a569-81a4647d7f5a" maxConcurrency="2">
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="bae75290-4d65-437f-a765-aa9305d1e5bb" message="first flow"/>
+				<try doc:name="Try" doc:id="7ce77f09-6514-4a21-ab32-df414904ddcb" >
+					<flow-ref doc:name="Flow Reference" doc:id="ae9a20c2-cbc3-49d4-9eba-268d9f3b625c" name="parllelprocessingFlow1" target="var1" />
+					<error-handler>
+						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c8e2542f-d633-4f7c-b8ed-9cb0d0cba003" >
+							<logger level="INFO" doc:name="Logger" doc:id="bb392ce8-c3a9-429b-a296-07b92f1abcfa" message="on error propogate-Karthik"/>
+						</on-error-propagate>
+					</error-handler>
+				</try>
+			</route>
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="8f032615-198c-410e-8538-6ee4f7b7cada" message="second flow"/>
+				<try doc:name="Try" doc:id="b85594de-c9f1-4382-ada1-522287b6010b" >
+					<flow-ref doc:name="Flow Reference" doc:id="bb5e0c0b-49d6-4318-a151-5cf46ef9eac2" name="parllelprocessingFlow2" target="var2" />
+					<error-handler >
+						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f66ebe9e-8ab9-4238-89bd-51403b1c7002" >
+							<logger level="INFO" doc:name="Logger" doc:id="23491efa-c38d-4286-8e40-f743a57064fb" message="flow2 error propogate"/>
+						</on-error-propagate>
+					</error-handler>
+				</try>
+			</route>
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="c4e29631-1873-4bac-9cec-e9e56adc2deb" message="logger 3"/>
+				<logger level="INFO" doc:name="Logger" doc:id="1c31e420-8911-4ac2-9750-3cb0f41664f9" message="test logger 3"/>
+			</route>
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="90d9031b-256b-482d-8bc9-0cbec5873354" message="logger 4"/>
+				<logger level="INFO" doc:name="Logger" doc:id="fee2234d-1348-48ed-92c8-ae279d9ab4e3" message="test logger 4"/>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="248b8aa9-189a-42e8-934b-85e54cf4c1bf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	value:if(vars.var1 !=null) vars.var1 else null,	
+	value:if(vars.var2 !=null or vars.var2 !="") vars.var2 else "flow2 shipment failed"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7476b857-f84a-4ecc-968c-d53c0ee4f440" message="testing #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="77df0a06-ccdd-4ecc-ae56-712e1d333359">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+Shipment:if (payload.*value !=null) payload.*value else null]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b42510fc-b411-4c43-8030-39caafee0400" message="final payload ++ #[payload]" />
+		<logger level="INFO" doc:name="Logger" doc:id="b283a3d7-f1eb-42a0-bd4f-a700eb9e09c1" message="#[payload.value.Name]"/>
+	</flow>
+	<flow name="parllelprocessingFlow1" doc:id="48171384-353e-4bc0-9bc5-aae9b6183fb5" >
+		<raise-error doc:name="Raise error" doc:id="66afffb7-5a79-4de8-9c17-e97d08cbe26a" type="CUSTOM:CUSTOM_ERROR" description="Error description message" />
+		<ee:transform doc:name="Transform Message" doc:id="ff68f1bb-569b-4e19-b110-94ebf7920828" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Name:"flow1",
+	flow:"parllelprocessingFlow1",
+	Test:"Scatter-Gatter"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="efbec587-3848-411e-9e02-e10971c55894" message="test for scatter flow1 ++ #[payload]" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="31e58eef-6459-474a-a125-4195e796d337" >
+				<logger level="INFO" doc:name="flow1_Error_Logger" doc:id="6c607188-f483-4468-9f9d-730b709a1dcc" message="error in flow1 for shipments still continue-Propogate" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="parllelprocessingFlow2" doc:id="ca3a472c-b94b-4538-a387-a0770b4303f5" >
+		<ee:transform doc:name="Transform Message" doc:id="bc30f297-207d-4bf8-afba-0f2b917b2b91" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	
+	Name:"flow2",
+	flow:"parllelprocessingFlow2",
+	Test:"Scatter-Gatter"
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<raise-error doc:name="Raise error" doc:id="b17b93e5-cf91-45cb-b74d-c5626b1cc4a5" type="CUSTOM:CUSTOM_ERROR" description="Error description message" />
+		<logger level="INFO" doc:name="Logger" doc:id="a2ef030a-0553-43bb-bed1-43ea7dca109f" message="test flow2 for scatter ++ #[payload]" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="518d5a75-6aaa-492a-aee2-25c8a7aadca0" >
+				<logger level="INFO" doc:name="Logger" doc:id="d2a998e6-ecaa-4a5d-9c05-80aa853fe545" message="error in flow2 for shipments still continue"/>
+				<set-payload value="#[null]" doc:name="Set Payload" doc:id="622ed775-e2b3-4250-b924-16e9c0cb77ba" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

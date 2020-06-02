@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="PersonSampleJson" format="json">
+      <types:shape format="weave" example="examples/PersonsampleJson.json"><![CDATA[%dw 2.0
+
+type PersonSampleJson = Array<{|  name: String,   age: Number {"typeId": "int"},   "Born At": String,   Birthdate: String,   photo: String|}> {"example": "[{\\\"name\\\":\\\"Tom \\\",\\\"age\\\":56,\\\"Born At\\\":\\\"Syracuse, NY\\\",\\\"Birthdate\\\":\\\"July 3, 1962\\\",\\\"photo\\\":\\\"https:\\/\\/jsonformatter.org\\/img\\/tom-cruise.jpg\\\"},{\\\"name\\\":\\\"Tom Cruise\\\",\\\"age\\\":56,\\\"Born At\\\":\\\"Syracuse, NY\\\",\\\"Birthdate\\\":\\\"July 3, 1962\\\",\\\"photo\\\":\\\"https:\\/\\/jsonformatter.org\\/img\\/tom-cruise.jpg\\\"},{\\\"name\\\":\\\" Cruise\\\",\\\"age\\\":56,\\\"Born At\\\":\\\"Syracuse, NY\\\",\\\"Birthdate\\\":\\\"July 3, 1962\\\",\\\"photo\\\":\\\"https:\\/\\/jsonformatter.org\\/img\\/tom-cruise.jpg\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="ObjectMap" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#3a45df37-078c-4d41-b50a-921fe470964d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="PersonSampleJson"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#bd3e407c-961d-4492-8814-5cfb3a8452d8">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="PersonSampleJson"/>
+          <types:attributes type="PersonSampleJson"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#dace1b8f-dd39-4ea3-a868-e7ebd8cca720">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="PersonSampleJson"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

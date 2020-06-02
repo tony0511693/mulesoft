@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="dataWeaveFlow" doc:id="cf5b8d46-d980-4bea-bcef-9c61e498e887" >
+		<ee:transform doc:name="Map_Transformer" doc:id="3a45df37-078c-4d41-b50a-921fe470964d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+payload map  ((value,index) ->	
+
+	   value mapObject (Objectvalue,key,I) ->
+	   {
+	   	
+	   	Great:Objectvalue
+	   	
+	   }
+	   
+	   
+
+
+)
+		
+		
+		
+		 
+		
+
+
+
+
+
+
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="mapObject" doc:id="bd3e407c-961d-4492-8814-5cfb3a8452d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+	payload mapObject (value,key,index) ->
+	{
+		
+		(key):
+		{
+			name:value.name,
+			(value.name):value.age,
+			//"- removes the value from payl1oad find below"
+			payload:value - "age",
+			
+			//Functions-core
+			ceil : ceil(1.5),
+			add : [0, 1] ++ ["a"],
+			result : [0, 1, 1, 2] -- [1,2],
+			cont:value.name contains "Tom"
+			
+			
+			
+		}
+		
+	}
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Functions" doc:id="dace1b8f-dd39-4ea3-a868-e7ebd8cca720" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+
+fun concatName(aPerson) = aPerson.name ++ ' ' ++ aPerson.Birthdate
+fun merge(aMerge) = aMerge
+fun stringToDateUTC(dateString) = ((dateString as String {format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"} >> "UTC"
+ )) as DateTime {format: "yyyy-MM-dd'T'HH:mm:ss.SSS"}
+ 
+ fun toUpper(aString)
+= aString match {
+  case is String -> upper(aString)
+  else -> null
+}
+
+
+---
+biruth:(payload filter ($.age>55)) map (v,i) ->
+ {
+	
+	name:v.name,
+	great:concatName(v),
+	merge:merge(v.name),
+	date:stringToDateUTC(v.Birthdate),
+	upper:toUpper(v.name)
+	
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="string_to_Object" doc:id="9ee56509-dccd-402e-9ee3-a4b7cdd4a0fb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var payload01=read(payload,"application/json")
+
+---
+payload01]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Object_toString" doc:id="27886256-63dc-4f74-a1ac-dc21214c209d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+//var payload01=write(payload,"application/json")
+
+---
+great:200.1234 as String {format: ".#"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<sub-flow name="dataWeaveSub_Flow" doc:id="8ca659ae-92e9-4145-92a7-6a5dcac5ad41" />
+</mule>

@@ -1,0 +1,19 @@
+{
+  "sampleData": {
+    "3a45df37-078c-4d41-b50a-921fe470964d": {
+      "payload": "sample_data/list_json.json"
+    },
+    "bd3e407c-961d-4492-8814-5cfb3a8452d8": {
+      "payload": "sample_data/list_json_1.json"
+    },
+    "dace1b8f-dd39-4ea3-a868-e7ebd8cca720": {
+      "payload": "sample_data/defaultstringtype.dwl"
+    },
+    "9ee56509-dccd-402e-9ee3-a4b7cdd4a0fb": {
+      "payload": "sample_data/json.json"
+    },
+    "27886256-63dc-4f74-a1ac-dc21214c209d": {
+      "payload": "sample_data/json_1.json"
+    }
+  }
+}
