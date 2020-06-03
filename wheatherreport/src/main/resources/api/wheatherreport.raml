@@ -1,0 +1,39 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/5e91510a-6c37-44ee-a685-3057db6e82c6/ # 
+title: WheatherReport
+description: call an wheather API for wheather
+protocols:
+  - HTTP
+
+/WReport:
+  get:
+    description: get wheather report from google API
+    queryParameters:
+      id:
+        required: true
+        minLength: 2
+        maxLength: 20
+        example:
+          value: "12345"
+    responses:
+      200:
+        body:
+          application/json:
+            description: "wheather details"   
+
+            example:
+              value: {
+                "CITY":"HYD"
+              }
+
+          
+              
+              
+
+          
+          
+          
+      
+
+    
+  
